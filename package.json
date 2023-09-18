@@ -1,0 +1,16 @@
+{
+  "name": "@westtrade/astro-form",
+  "version": "0.0.1-alpha",
+  "description": "Astro Form is a tool that makes creating HTML forms in Astro easier by providing advanced features such as client and server easy validation, error handling, and form processing. It simplifies the web development process and allows you to create functional and visually appealing forms quickly with any style.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "astro",
+    "withastro",
+    "astro-component"
+  ],
+  "author": "",
+  "license": "ISC"
+}
