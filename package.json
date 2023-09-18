@@ -1,17 +1,21 @@
 {
-  "name": "@westtrade/astro-form",
-  "version": "1.0.1",
-  "description": "Easy to use validation and form handling for Astro",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "astro",
-    "withastro",
-    "astro-component"
-  ],
-  "author": "Gennadiy Popov <gennadiy.popov.87@yandex.ru>",
-  "license": "MIT",
-  "private": "false"
+	"name": "@westtrade/astro-form",
+	"version": "1.0.1-alpha",
+	"description": "Easy to use validation and form handling for Astro SSR",
+	"scripts": {},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/westtrade/astro-form.git"
+	},
+	"engines": {
+		"node": ">=18.14.1",
+		"pnpm": ">=8.6.12"
+	},
+	"keywords": [
+		"astro",
+		"withastro",
+		"astro-component"
+	],
+	"author": "Gennadiy Popov <gennadiy.popov.87@yandex.ru>",
+	"license": "MIT"
 }
