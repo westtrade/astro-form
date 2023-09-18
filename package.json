@@ -1,12 +1,24 @@
 {
 	"name": "@westtrade/astro-form",
 	"version": "1.0.1-alpha",
-	"description": "Easy to use validation and form handling for Astro SSR",
+	"description": "Easy to use validation and form handling for Astro SSR 🪄",
+	"type": "module",
 	"scripts": {},
+	"exports": {
+		".": "./src/index.js",
+		"./form": "./src/components/AstroForm.astro",
+		"./middleware": "./src/middlewares/forms.ts"
+	},
+	"files": [
+		"./src/index.js",
+		"./src/components/AstroForm.astro",
+		"./src/middlewares/forms.ts"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/westtrade/astro-form.git"
 	},
+	"homepage": "https://github.com/westtrade/astro-form#readme",
 	"engines": {
 		"node": ">=18.14.1",
 		"pnpm": ">=8.6.12"
@@ -17,5 +29,16 @@
 		"astro-component"
 	],
 	"author": "Gennadiy Popov <gennadiy.popov.87@yandex.ru>",
-	"license": "MIT"
+	"license": "MIT",
+	"dependencies": {
+		"astro": "^3.1.0",
+		"fastest-validator": "^1.17.0",
+		"json-fn": "^1.1.1",
+		"lodash-es": "^4.17.21",
+		"nanoid": "^5.0.1"
+	},
+	"devDependencies": {
+		"prettier": "^3.0.3",
+		"prettier-plugin-astro": "^0.12.0"
+	}
 }

@@ -1,0 +1,100 @@
+---
+import type { ValidationSchema } from 'fastest-validator';
+import type { IProcessCallback } from '../middlewares/forms';
+import AstroForm from './AstroForm.astro';
+import { stringify } from "json-fn";
+
+
+interface Props {
+	name: string;
+
+	fields?: ValidationSchema;
+	id?: string;
+	class?: string;
+	classInner?: string;
+	"class:list"?: any;
+	acceptCharset?: string;
+	action?: string;
+	method?: "GET" | "POST" | "PUT" | "DELETE";
+	novalidate?: boolean;
+	autocomplete?: boolean | "on" | "off";
+	messages?: Record<string, string>;
+	process?: IProcessCallback;
+	initialValues?: Record<string, any>;
+	enctype?:
+		| "application/x-www-form-urlencoded"
+		| "multipart/form-data"
+		| "text/plain";
+
+	validatorPlugins?: any[];
+}
+
+
+const {
+	id,
+	name,
+	class: className,
+	classInner,
+	["class:list"]: classList = [],
+	acceptCharset = "utf-8",
+	action,
+	method = "POST",
+	novalidate,
+	autocomplete,
+	messages = {},
+	process: processAction,
+	enctype = "application/x-www-form-urlencoded",
+	fields,
+	validatorPlugins = [],
+	initialValues = {},
+	...otherProps
+} = Astro.props;
+
+
+
+const hxSettings = {
+	[`hx-${method.toLowerCase()}`]: resultAction,
+	"hx-trigger": "submit",
+	"hx-select": `#wrapper-${resultId}`,
+	"hx-target": `#wrapper-${resultId}`,
+	"hx-swap": "outerHTML transition:true",
+};
+
+const restedProps = {
+	...hxSettings,
+	...otherProps,
+};
+
+
+const beforeContent = Astro.slots.render("before", [formData]);
+const afterContent = Astro.slots.render("after", [formData]);
+
+
+
+// TODO Add data to nanostore - for easy integration with other frameworks
+---
+
+
+
+
+<div
+	id={`wrapper-${resultId}`}
+	class:list={[
+		className,
+		...(Array.isArray(classList) ? classList : [classList]),
+	]}
+>
+
+	<Fragment set:html={beforeContent} />
+
+<AstroForm {...Astro.props}
+
+	x-data={`AstroForm(${stringify(formData)})`}
+		x-bind="trigger"
+
+>
+<slot />
+</AstroForm>
+	<Fragment set:html={afterContent} />
+
+</div>

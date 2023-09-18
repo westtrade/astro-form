@@ -1,0 +1,147 @@
+---
+import { type ValidationSchema } from "fastest-validator";
+import _ from "lodash-es";
+import { customAlphabet } from "nanoid";
+import {
+	FormStatus,
+	type ProcessedForm,
+	addForm,
+	type IProcessCallback,
+} from "../middlewares/forms";
+
+// TODO Error  Catching
+const nanoid = customAlphabet("1234567890abcdef", 10);
+
+interface Props {
+	name: string;
+
+	fields?: ValidationSchema;
+	id?: string;
+	class?: string;
+	classInner?: string;
+	"class:list"?: any;
+	acceptCharset?: string;
+	action?: string;
+	method?: "GET" | "POST" | "PUT" | "DELETE";
+	novalidate?: boolean;
+	autocomplete?: boolean | "on" | "off";
+	messages?: Record<string, string>;
+	process?: IProcessCallback;
+	initialValues?: Record<string, any>;
+	enctype?:
+		| "application/x-www-form-urlencoded"
+		| "multipart/form-data"
+		| "text/plain";
+
+	validatorPlugins?: any[];
+}
+
+const {
+	id,
+	name,
+	class: className,
+	classInner,
+	["class:list"]: classList = [],
+	acceptCharset = "utf-8",
+	action,
+	method = "POST",
+	novalidate,
+	autocomplete,
+	messages = {},
+	process: processAction,
+	enctype = "application/x-www-form-urlencoded",
+	fields,
+	validatorPlugins = [],
+	initialValues = {},
+	...otherProps
+} = Astro.props;
+
+let resultAutoCompleteValue: string | null | undefined;
+if (typeof autocomplete == "boolean") {
+	resultAutoCompleteValue = autocomplete === true ? "on" : "off";
+} else {
+	resultAutoCompleteValue = autocomplete;
+}
+
+const currentURL = new URL(Astro.url);
+const resultAction =
+	typeof action === "undefined"
+		? `${currentURL.pathname}${currentURL.search}`
+		: action;
+
+const isRandom = !name;
+const formName = name ?? nanoid();
+const resultId = !!id ? id : `form-${formName}`;
+
+// Define form
+
+addForm(
+	formName,
+	{
+		id: resultId,
+		name: formName,
+		method,
+		action: resultAction,
+		messages,
+		processAction,
+		fields,
+		initialValues,
+		validatorPlugins,
+	},
+	{
+		isRandom,
+	},
+);
+
+const processedForm = Astro.locals.form || {
+	id: resultId,
+	name: formName,
+	errors: {},
+	status: FormStatus.INITIALIZED,
+};
+
+if (processedForm.status === FormStatus.INITIALIZED) {
+	processedForm.values = {};
+	if (fields) {
+		for (const fieldName of Object.keys(fields)) {
+			const spec = fields[fieldName];
+			if ("default" in spec) {
+				processedForm.values[fieldName] = spec.default;
+			}
+		}
+	}
+
+	if (initialValues) {
+		for (const fieldName of Object.keys(initialValues)) {
+			processedForm.values[fieldName] = initialValues[fieldName];
+		}
+	}
+}
+
+const formData: ProcessedForm = {
+	...processedForm,
+	hasErrors: processedForm.status === FormStatus.ERROR,
+	isSuccess: processedForm.status === FormStatus.SUCCESS,
+	fields,
+};
+
+const content = Astro.slots.render("default", [formData]);
+
+---
+	<form
+		id={resultId}
+		name={formName}
+		method={method}
+		action={resultAction}
+		accept-charset={acceptCharset}
+		autocomplete={resultAutoCompleteValue}
+		novalidate={novalidate}
+		enctype={enctype}
+		class={classInner}
+		{...otherProps}
+
+	>
+		<Fragment set:html={content} />
+
+		<input type="hidden" name="form_id" value={formName} />
+	</form>

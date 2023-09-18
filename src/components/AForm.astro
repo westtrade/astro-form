@@ -1,0 +1,116 @@
+---
+
+---
+
+
+<script>
+	// import Alpine from "alpinejs";
+	// console.log("AstroForm");
+	globalThis.validatorPlugins = globalThis.validatorPlugins || [];
+
+	import Validator, {
+		type AsyncCheckFunction,
+		type SyncCheckFunction,
+	} from "fastest-validator";
+
+	const validator = new Validator({
+		useNewCustomCheckerFunction: true, // using new version
+	});
+
+	document.addEventListener("alpine:init", () => {
+		const Alpine = globalThis.Alpine;
+
+		Alpine.data("AstroForm", (formState = {}) => {
+			const dirtyInputs =
+				formState.status === "initialize"
+					? {}
+					: Object.entries(formState.values || {}).reduce(
+							(result, [fieldName, value]) => ({
+								...result,
+								[fieldName]: true,
+							}),
+							{},
+					  );
+
+			let check: SyncCheckFunction | AsyncCheckFunction = async () =>
+				true;
+
+			if (formState.fields) {
+				try {
+					if (globalThis.validatorPlugins) {
+						for (const plugin of globalThis.validatorPlugins) {
+							validator.plugin(plugin);
+						}
+					}
+
+					check = validator.compile(formState.fields);
+				} catch (error) {
+					console.error(error);
+				}
+			}
+
+			const validate = async (fieldName, values = {}) => {
+				const validationResult = await check(values);
+
+				if (validationResult === true) {
+					return null;
+				}
+
+				const errors = validationResult.reduce(
+					(result, fieldError) => ({
+						...result,
+						[fieldError.field]: [
+							...(result[fieldError.field] || []),
+							fieldError,
+						],
+					}),
+					{},
+				);
+
+				return errors[fieldName];
+			};
+
+			return {
+				trigger: {
+					async ["@blur.capture"]({ target }) {
+						// console.log(event);
+						const fieldName = target.name;
+						const value = target.value;
+
+						this.dirty[fieldName] = true;
+						this.values[fieldName] = value;
+
+						const values = Object.keys(this.values).reduce(
+							(result, key) => {
+								return {
+									...result,
+									[key]: this.values[key],
+								};
+							},
+							{},
+						);
+
+						const fieldErrors = await validate(fieldName, values);
+						this.errors[fieldName] = fieldErrors;
+					},
+					["@input.capture"]({ target }) {
+						const fieldName = target.name;
+						this.dirty[fieldName] = true;
+
+						console.log(target.files);
+
+						// console.log(event);
+					},
+
+					["@submit.capture"](event) {
+						console.log(event);
+						event.preventDefault();
+						return false;
+					},
+				},
+				dirty: dirtyInputs,
+				...formState,
+			};
+		});
+	});
+</script>
